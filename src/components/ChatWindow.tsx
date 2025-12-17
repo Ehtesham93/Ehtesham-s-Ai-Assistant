@@ -148,103 +148,174 @@ Thank you!`;
     }
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+ // ✅ Better spelling correction using Levenshtein distance
+const levenshteinDistance = (a: string, b: string): number => {
+  const matrix: number[][] = [];
 
-    const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+  // initialize
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
 
-    try {
-      const q = input.toLowerCase().trim();
-
-      // Greeting detection first
-      const greetings = ['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'];
-      if (greetings.includes(q)) {
-        const greeting = q.charAt(0).toUpperCase() + q.slice(1);
-        setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
-        setIsLoading(false);
-        setTimeout(() => scrollToBottom(), 0);
-        return;
+  // fill matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b[i - 1] === a[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
       }
-
-      // Confirmation flow
-      if (conversationState) {
-        if (q === 'yes') {
-          const reply = getConfirmedReply(conversationState);
-          setConversationState(null);
-          typeMessage(reply); // typing effect disables controls via isLoading
-        } else {
-          setMessages(prev => [...prev, { role: 'assistant', content: "Okay, let me know if you'd like to hear about it later." }]);
-          setConversationState(null);
-          setIsLoading(false);
-          setTimeout(() => scrollToBottom(), 0);
-        }
-        return;
-      }
-
-      // Topic triggers
-      const topicMap: { [key: string]: Topic } = {
-        intro: 'intro',
-        skill: 'skills',
-        stack: 'skills',
-        tech: 'skills',
-        education: 'education',
-        school: 'education',
-        study: 'education',
-        hobby: 'hobbies',
-        interest: 'hobbies',
-        experience: 'experience',
-        career: 'experience',
-        role: 'experience',
-        project: 'projects',
-        leadership: 'leadership',
-        activity: 'leadership',
-        fest: 'leadership',
-        contact: 'contact',
-        email: 'contact',
-        reach: 'contact',
-        personality: 'personality',
-        nature: 'personality',
-        character: 'personality'
-      };
-
-      const matchedTopic = Object.entries(topicMap).find(([key]) => q.includes(key))?.[1];
-
-      if (matchedTopic) {
-        setConversationState(matchedTopic);
-        setMessages(prev => [
-          ...prev,
-          { role: 'assistant', content: `Do you want to know about Ehtesham’s ${matchedTopic}?` }
-        ]);
-        setIsLoading(false);
-        setTimeout(() => scrollToBottom(), 0);
-        return;
-      }
-
-      // Default fallback
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'assistant',
-          content:
-            "Ehtesham's bot is still in training. Try asking about my intro, skills, education, hobbies, experience, projects, leadership, contact, or personality."
-        }
-      ]);
-      setIsLoading(false);
-      setTimeout(() => scrollToBottom(), 0);
-    } catch (error) {
-      console.error('Chat error:', error);
-      toast.error('Something went wrong. Please try again.');
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: "Sorry, I'm having trouble right now. Please try again later." }
-      ]);
-      setIsLoading(false);
-      setTimeout(() => scrollToBottom(), 0);
     }
-  };
+  }
+
+  return matrix[b.length][a.length];
+};
+
+const correctSpelling = (q: string): string | null => {
+  const dictionary: Topic[] = [
+    'intro',
+    'skills',
+    'education',
+    'hobbies',
+    'experience',
+    'projects',
+    'leadership',
+    'contact',
+    'personality'
+  ];
+
+  let bestMatch: string | null = null;
+  let bestDistance = Infinity;
+
+  for (const word of dictionary) {
+    const distance = levenshteinDistance(q, word);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestMatch = word;
+    }
+  }
+
+  // allow suggestions if edit distance is small enough
+  return bestDistance <= 3 ? bestMatch : null;
+};
+
+  const handleSend = async () => {
+  if (!input.trim() || isLoading) return;
+
+  const userMessage: Message = { role: 'user', content: input };
+  setMessages(prev => [...prev, userMessage]);
+  setInput('');
+  setIsLoading(true);
+
+  try {
+    const q = input.toLowerCase().trim();
+
+    // Greeting detection first
+    const greetings = ['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'];
+    if (greetings.includes(q)) {
+      const greeting = q.charAt(0).toUpperCase() + q.slice(1);
+      setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
+      setIsLoading(false);
+      setTimeout(() => scrollToBottom(), 0);
+      return;
+    }
+
+    // Confirmation flow
+    if (conversationState) {
+      if (q === 'yes') {
+        const reply = getConfirmedReply(conversationState);
+        setConversationState(null);
+        typeMessage(reply); // typing effect disables controls via isLoading
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: "Okay, let me know if you'd like to hear about it later." }]);
+        setConversationState(null);
+        setIsLoading(false);
+        setTimeout(() => scrollToBottom(), 0);
+      }
+      return;
+    }
+
+    // Topic triggers map — declare this first
+    const topicMap: { [key: string]: Topic } = {
+      intro: 'intro',
+      skill: 'skills',
+      stack: 'skills',
+      tech: 'skills',
+      education: 'education',
+      school: 'education',
+      study: 'education',
+      hobby: 'hobbies',
+      interest: 'hobbies',
+      experience: 'experience',
+      career: 'experience',
+      role: 'experience',
+      project: 'projects',
+      leadership: 'leadership',
+      activity: 'leadership',
+      fest: 'leadership',
+      contact: 'contact',
+      email: 'contact',
+      reach: 'contact',
+      personality: 'personality',
+      nature: 'personality',
+      character: 'personality'
+    };
+
+    // ✅ Spelling correction check — now topicMap is in scope
+    const corrected = correctSpelling(q);
+    if (corrected && !Object.keys(topicMap).includes(q)) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: `Please check your spelling. Did you mean "${corrected}"?` }
+      ]);
+      setIsLoading(false);
+      setTimeout(() => scrollToBottom(), 0);
+      return;
+    }
+
+    // Matching topic
+    const matchedTopic = Object.entries(topicMap).find(([key]) => q.includes(key))?.[1];
+
+    if (matchedTopic) {
+      setConversationState(matchedTopic);
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: `Do you want to know about Ehtesham’s ${matchedTopic}?` }
+      ]);
+      setIsLoading(false);
+      setTimeout(() => scrollToBottom(), 0);
+      return;
+    }
+
+    // Default fallback
+    setMessages(prev => [
+      ...prev,
+      {
+        role: 'assistant',
+        content:
+          "Ehtesham's bot is still in training. Try asking about my intro, skills, education, hobbies, experience, projects, leadership, contact, or personality."
+      }
+    ]);
+    setIsLoading(false);
+    setTimeout(() => scrollToBottom(), 0);
+  } catch (error) {
+    console.error('Chat error:', error);
+    toast.error('Something went wrong. Please try again.');
+    setMessages(prev => [
+      ...prev,
+      { role: 'assistant', content: "Sorry, I'm having trouble right now. Please try again later." }
+    ]);
+    setIsLoading(false);
+    setTimeout(() => scrollToBottom(), 0);
+  }
+};
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
