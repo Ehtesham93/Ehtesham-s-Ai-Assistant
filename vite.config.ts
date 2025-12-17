@@ -6,15 +6,18 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: "0.0.0.0", // ✅ safer cross‑platform host than "::"
     port: 8080,
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    mode === "development" ? componentTagger() : null, // ✅ clearer conditional
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // 👇 Add this line for GitHub Pages
+  // ✅ Ensures assets load correctly on GitHub Pages
   base: "/Ehtesham-s-Ai-Assistant/",
 }));
