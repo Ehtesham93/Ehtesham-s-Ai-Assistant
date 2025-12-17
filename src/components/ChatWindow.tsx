@@ -75,7 +75,8 @@ export const ChatWindow = () => {
   const getConfirmedReply = (topic: Topic): string => {
     switch (topic) {
       case 'intro':
-        return `Thank you for asking! I’m Ehtesham Alam, a Backend-focused Software Engineer at Mahindra Last Mile Mobility 👨‍💻
+        return `Thank you for asking!😊
+        I’m Ehtesham Alam, a Backend-focused Software Engineer at Mahindra Last Mile Mobility 👨‍💻
 
 My journey began in Bihar, where I completed my schooling before moving to NIT Warangal for my B.Tech in Computer Science. During my time at NIT, I explored backend development deeply, working on projects that involved scalable systems and glowing dashboards. I also pursued a research internship at IIT ISM, where I worked on real-time emotion detection using machine learning.
 
@@ -143,8 +144,9 @@ Thank you!`;
 I respect all religions and value harmony 🌍. I love nature and find peace in it 🌱. I’m a happy and optimistic person 😃, and I’m known as a "one-man army" — independent and resilient 💪. I’m also transparent, approachable, and detail-oriented, which helps me connect with people while maintaining technical excellence.
 Thank you!`;
 
-      default:
-        return `Ehtesham's bot is still in training. Try asking about my intro, skills, education, hobbies, experience, projects, leadership, contact, or personality.`;
+    default:
+    return `May be you are try to asking about my "intro, myself, skills, technical skills, stack, tech, education, school, college, hobbies, interest, experience, career, role, job, work, projects, leadership, activity, contact, personality, nature, character".`;
+
     }
   };
 
@@ -179,30 +181,29 @@ const levenshteinDistance = (a: string, b: string): number => {
 };
 
 const correctSpelling = (q: string): string | null => {
-  const dictionary: Topic[] = [
-    'intro',
-    'skills',
-    'education',
-    'hobbies',
-    'experience',
-    'projects',
-    'leadership',
-    'contact',
-    'personality'
+  const dictionary: string[] = [
+    "intro", "introduction", "yourself", "about", "intr", "interduct",
+    "skills", "skill", "skil", "stack", "tech",
+    "education", "study", "school", "college", "educatn",
+    "hobbies", "hobby", "interest", "hobies",
+    "experience", "career", "carrer", "exper", "job", "work", "role",
+    "projects", "project", "projct",
+    "leadership", "leader", "activity", "fest",
+    "contact", "email", "reach", "connect",
+    "personality", "nature", "character", "personalty"
   ];
 
   let bestMatch: string | null = null;
   let bestDistance = Infinity;
 
   for (const word of dictionary) {
-    const distance = levenshteinDistance(q, word);
+    const distance = levenshteinDistance(q.toLowerCase(), word.toLowerCase());
     if (distance < bestDistance) {
       bestDistance = distance;
       bestMatch = word;
     }
   }
 
-  // allow suggestions if edit distance is small enough
   return bestDistance <= 3 ? bestMatch : null;
 };
 
@@ -215,13 +216,29 @@ const correctSpelling = (q: string): string | null => {
   setIsLoading(true);
 
   try {
-    const q = input.toLowerCase().trim();
+    const q = input.trim();
 
-    // Greeting detection first
-    const greetings = ['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'];
-    if (greetings.includes(q)) {
-      const greeting = q.charAt(0).toUpperCase() + q.slice(1);
-      setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
+    // Greeting detection
+    const greetingsMap: { [key: string]: string } = {
+      "hi": "Hi! How can I assist you?",
+      "hii": "Hi! How can I assist you?",
+      "hey": "Hi! How can I assist you?",
+      "hello": "Hello! How can I assist you?",
+      "good morning": "Good morning! How can I assist you?",
+      "hii good morning": "Hii Good morning! How can I assist you?",
+      "hello good morning": "Hello Good Morning! How can I assist you?",
+      "good afternoon": "Good afternoon! How can I assist you?",
+      "hii good afternoon": "Hii Good afternoon! How can I assist you?",
+      "hello good afternoon": "Hello Good Afternoon! How can I assist you?",
+      "good evening": "Good evening! How can I assist you?",
+      "hii good evening": "Hii Good Evening! How can I assist you?",
+      "hello good evening": "Hello Good Evening! How can I assist you?",
+      "good night": "Good night Bye 👋!"
+    };
+
+    const normalizedQ = q.toLowerCase();   // normalize only for lookup
+    if (greetingsMap[normalizedQ]) {
+      setMessages(prev => [...prev, { role: "assistant", content: greetingsMap[normalizedQ] }]);
       setIsLoading(false);
       setTimeout(() => scrollToBottom(), 0);
       return;
@@ -244,33 +261,84 @@ const correctSpelling = (q: string): string | null => {
 
     // Topic triggers map — declare this first
     const topicMap: { [key: string]: Topic } = {
-      intro: 'intro',
-      skill: 'skills',
-      stack: 'skills',
-      tech: 'skills',
-      education: 'education',
-      school: 'education',
-      study: 'education',
-      hobby: 'hobbies',
-      interest: 'hobbies',
-      experience: 'experience',
-      career: 'experience',
-      role: 'experience',
-      project: 'projects',
-      leadership: 'leadership',
-      activity: 'leadership',
-      fest: 'leadership',
-      contact: 'contact',
-      email: 'contact',
-      reach: 'contact',
-      personality: 'personality',
-      nature: 'personality',
-      character: 'personality'
-    };
+    // Intro variations
+    intro: 'intro',
+    yourself: 'intro',
+    about: 'intro',
+    "about yourself": 'intro',
+    "Hi tell me about yourself": 'intro',
+    "Hello tell me about yourself": 'intro',
+    "tell me about yourself": 'intro',
+    "who are you": 'intro',
+    "Hi who are you": 'intro',
+    "about ehtesham": 'intro',
+
+    // Skills variations
+    skill: 'skills',
+    skills: 'skills',
+    stack: 'skills',
+    tech: 'skills',
+    "your skills": 'skills',
+    "tell me your skills": 'skills',
+    "technical skills": 'skills',
+
+    // Education variations
+    education: 'education',
+    school: 'education',
+    study: 'education',
+    college: 'education',
+    "your education": 'education',
+    "tell me about your education": 'education',
+
+    // Hobbies variations
+    hobby: 'hobbies',
+    hobbies: 'hobbies',
+    interest: 'hobbies',
+    "your hobbies": 'hobbies',
+    "tell me your hobbies": 'hobbies',
+
+    // Experience variations
+    experience: 'experience',
+    career: 'experience',
+    role: 'experience',
+    work: 'experience',
+    job: 'experience',
+    "your experience": 'experience',
+    "tell me about your experience": 'experience',
+
+    // Projects variations
+    project: 'projects',
+    projects: 'projects',
+    "your projects": 'projects',
+    "tell me about your projects": 'projects',
+
+    // Leadership variations
+    leadership: 'leadership',
+    activity: 'leadership',
+    fest: 'leadership',
+    "your leadership": 'leadership',
+    "tell me about leadership": 'leadership',
+
+    // Contact variations
+    contact: 'contact',
+    email: 'contact',
+    reach: 'contact',
+    connect: 'contact',
+    "your contact": 'contact',
+    "how to reach you": 'contact',
+
+    // Personality variations
+    personality: 'personality',
+    nature: 'personality',
+    character: 'personality',
+    "your personality": 'personality',
+    "tell me about your personality": 'personality'
+  };
+
 
     // ✅ Spelling correction check — now topicMap is in scope
-    const corrected = correctSpelling(q);
-    if (corrected && !Object.keys(topicMap).includes(q)) {
+    const corrected = correctSpelling(q.toLowerCase());
+    if (corrected && !Object.keys(topicMap).includes(q.toLowerCase())) {
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: `Please check your spelling. Did you mean "${corrected}"?` }
@@ -280,19 +348,18 @@ const correctSpelling = (q: string): string | null => {
       return;
     }
 
+
     // Matching topic
-    const matchedTopic = Object.entries(topicMap).find(([key]) => q.includes(key))?.[1];
+    const matchedTopic = Object.entries(topicMap)
+  .find(([key]) => q.toLowerCase().includes(key.toLowerCase()))?.[1];
 
     if (matchedTopic) {
-      setConversationState(matchedTopic);
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: `Do you want to know about Ehtesham’s ${matchedTopic}?` }
-      ]);
-      setIsLoading(false);
-      setTimeout(() => scrollToBottom(), 0);
+      const reply = getConfirmedReply(matchedTopic);   // ✅ get the full reply immediately
+      typeMessage(reply);                              // ✅ show typing effect directly
+      setConversationState(null);                      // ✅ no need to wait for "yes"
       return;
     }
+
 
     // Default fallback
     setMessages(prev => [
@@ -300,9 +367,10 @@ const correctSpelling = (q: string): string | null => {
       {
         role: 'assistant',
         content:
-          "Ehtesham's bot is still in training. Try asking about my intro, skills, education, hobbies, experience, projects, leadership, contact, or personality."
+          'May be you are try to asking about my "intro, myself, skills, technical skills, stack, tech, education, school, college, hobbies, interest, experience, career, role, job, work, projects, leadership, activity, contact, personality, nature, character".'
       }
     ]);
+
     setIsLoading(false);
     setTimeout(() => scrollToBottom(), 0);
   } catch (error) {
