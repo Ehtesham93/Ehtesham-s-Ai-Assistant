@@ -32,12 +32,46 @@ export const ChatWindow = () => {
   const [conversationState, setConversationState] = useState<Topic | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // ✅ Auto-scroll helper
+  const scrollToBottom = () => {
+    if (!scrollRef.current) return;
+    const viewport = scrollRef.current.querySelector(
+      '[data-radix-scroll-area-viewport]'
+    ) as HTMLDivElement | null;
+    const el = viewport ?? scrollRef.current;
+    el.scrollTop = el.scrollHeight;
+  };
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    scrollToBottom();
   }, [messages]);
 
+  // ✅ Typing effect helper
+  const typeMessage = (text: string) => {
+    let index = 0;
+    setIsLoading(true);
+    const interval = setInterval(() => {
+      index++;
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last && last.role === 'assistant') {
+          return [
+            ...prev.slice(0, -1),
+            { role: 'assistant', content: text.slice(0, index) }
+          ];
+        } else {
+          return [...prev, { role: 'assistant', content: text.slice(0, index) }];
+        }
+      });
+      scrollToBottom();
+      if (index >= text.length) {
+        clearInterval(interval);
+        setIsLoading(false);
+      }
+    }, 30); // typing speed
+  };
+
+  // ✅ Replies for all topics
   const getConfirmedReply = (topic: Topic): string => {
     switch (topic) {
       case 'intro':
@@ -48,63 +82,69 @@ My journey began in Bihar, where I completed my schooling before moving to NIT W
 Today, at Mahindra, I blend management responsibilities with hands-on engineering, building platforms that support electric vehicle fleets and driver apps. I enjoy combining technical excellence with joyful user experiences, and I’m proud to be known as a one-man army — independent, resilient, and optimistic.`;
 
       case 'skills':
-        return `Thank you for asking! My skills have grown step by step through education, internships, and professional work.
+        return `My skills have grown step by step through education, internships, and professional work.
 
-During my B.Tech at NIT Warangal, I mastered Node.js, Express, and PostgreSQL while building scalable backend systems for hackathons and academic projects. At my research internship at IIT ISM, I focused on Python, Flask, and machine learning, applying them to real-time emotion detection with CNN models. Later, at Mahindra Last Mile Mobility, I polished my expertise in REST APIs, AWS cloud services, and system design, creating production-ready platforms for electric vehicle fleets and driver apps.
+During my B.Tech at NIT Warangal, I mastered Node.js, Express, and PostgreSQL while building scalable backend systems. At my research internship at IIT ISM, I focused on Python, Flask, and machine learning, applying them to real-time emotion detection with CNN models. Later, at Mahindra Last Mile Mobility, I polished my expertise in REST APIs, AWS cloud services, and system design, creating production-ready platforms for electric vehicle fleets and driver apps.
 
-Alongside these, I developed frontend skills in React and Vue.js, and I’m passionate about clean architecture, glowing dashboards, and joyful user experiences.`;
+Alongside these, I developed frontend skills in React and Vue.js, and I’m passionate about clean architecture, glowing dashboards, and joyful user experiences.
+Thank you!`;
 
       case 'education':
-        return `Thank you for asking! My education journey has been a foundation for everything I do today.
+        return ` My education journey has been a foundation for everything I do today.
 
-I completed my 10th grade in 2019 from the Bihar School Examination Board, Patna, where I ranked first in my class. In 2021, I passed my Intermediate exams from the same board, again securing top grades. These early years gave me discipline and a love for problem-solving.
+I completed my 10th grade in 2019 from the Bihar School Examination Board, Patna, ranking first in my class. In 2021, I passed my Intermediate exams from the same board, again securing top grades. These early years gave me discipline and a love for problem-solving.
 
-Later, I pursued my B.Tech in Computer Science at NIT Warangal, graduating in 2025. At NIT, I not only studied core subjects like algorithms, databases, and operating systems, but also applied them in real projects. My research internship at IIT ISM allowed me to explore real-time emotion detection, combining computer vision with backend systems. This mix of theory and practice shaped me into the engineer I am today.`;
+Later, I pursued my B.Tech in Computer Science at NIT Warangal, graduating in 2025. At NIT, I studied core subjects like algorithms, databases, and operating systems, and applied them in real projects. My research internship at IIT ISM allowed me to explore real-time emotion detection, combining computer vision with backend systems.
+Thank you !`;
 
       case 'hobbies':
-        return `Thank you for asking! My hobbies are a big part of who I am.
+        return `My hobbies are a big part of who I am.
 
-I love playing cricket and football, which keep me active and teach me teamwork. Chess sharpens my strategic thinking, while foosball is my go-to for quick fun with friends. These hobbies balance my technical life with joy, energy, and creativity.`;
+I love playing cricket and football, which keep me active and teach me teamwork. Chess sharpens my strategic thinking, while foosball is my go-to for quick fun with friends. These hobbies balance my technical life with joy, energy, and creativity.
+Thank you!`;
 
       case 'experience':
-        return `Thank you for asking! My professional experience reflects my growth as an engineer.
+        return `My professional experience reflects my growth as an engineer.
 
-At Mahindra Last Mile Mobility, I work as an Assistant Manager and Software Engineer. I’ve built scalable EV fleet and vehicle management platforms, designed high-performance REST APIs with Node.js and Express, optimized PostgreSQL queries for speed, and integrated real-time telemetry with AWS. This role blends leadership with hands-on coding.
+At Mahindra Last Mile Mobility, I work as an Assistant Manager and Software Engineer. I’ve built scalable EV fleet and vehicle management platforms, designed high-performance REST APIs with Node.js and Express, optimized PostgreSQL queries for speed, and integrated real-time telemetry with AWS.
 
-Before that, I was a research intern at IIT ISM, where I developed a backend for real-time mining sensor monitoring. This gave me exposure to Python, Flask, and data-driven systems. Together, these experiences shaped me into a versatile engineer.`;
+Before that, I was a research intern at IIT ISM, where I developed a backend for real-time mining sensor monitoring. This gave me exposure to Python, Flask, and data-driven systems. Together, these experiences shaped me into a versatile engineer.
+Thank you!`;
 
       case 'projects':
-        return `Thank you for asking! Here are some of my key projects:
+        return `Here are some of my key projects:
 
 - Fleet Management System (FMS): A backend platform for fleet tracking, trip lifecycle, maintenance, and analytics.
 - Vehicle Management Center (VMC): APIs for vehicle health monitoring, alerts, and telemetry integration.
 - NEMO Driver App: A driver onboarding and trip management app with authentication and live tracking.
 - Real-Time Emotion Detection System: Built with CNN + Flask, achieving 85% accuracy in detecting emotions.
-- Spring Spree Fest Website (NIT Warangal): Backend APIs for event registration, authentication, and admin dashboards, used by thousands of students.`;
+- Spring Spree Fest Website (NIT Warangal): Backend APIs for event registration, authentication, and admin dashboards, used by thousands of students.
+Thank you!`;
 
       case 'leadership':
-        return `Thank you for asking! Leadership and activities have been an important part of my journey.
+        return `Leadership and activities have been an important part of my journey.
 
-At NIT Warangal, I served as a core backend developer for the Spring Spree Fest Website. I designed backend APIs for registration, authentication, and admin dashboards, delivering a production-ready system used by thousands of students. This experience taught me responsibility, collaboration, and the impact of technology on communities.`;
+At NIT Warangal, I served as a core backend developer for the Spring Spree Fest Website. I designed backend APIs for registration, authentication, and admin dashboards, delivering a production-ready system used by thousands of students. This experience taught me responsibility, collaboration, and the impact of technology on communities.
+Thank you!`;
 
       case 'contact':
-        return `Thank you for asking! Here’s how you can connect with me in a professional way:
+        return `Here’s how you can connect with me:
 
-📧 **Email**: You can reach me directly at [nitehtesham9393@gmail.com](mailto:nitehtesham9393@gmail.com). I actively check my inbox and respond promptly to meaningful opportunities.
+📧 **Email**: [nitehtesham9393@gmail.com](mailto:nitehtesham9393@gmail.com)  
+💻 **GitHub**: [github.com/Ehtesham93](https://github.com/Ehtesham93)  
+🔗 **LinkedIn**: [linkedin.com/in/e-alam-29b0231ehtesham-alam-2239b0231](https://www.linkedin.com/in/e-alam-29b0231ehtesham-alam-2239b0231?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app)
 
-💻 **GitHub**: Explore my projects, code samples, and contributions at [github.com/Ehtesham93](https://github.com/Ehtesham93). This is where I showcase my technical journey, from backend systems to experimental projects.
-
-🔗 **LinkedIn**: Connect with me professionally on [linkedin.com/in/e-alam-29b0231ehtesham-alam-2239b0231](https://www.linkedin.com/in/e-alam-29b0231ehtesham-alam-2239b0231?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app). I use LinkedIn to share insights, network with peers, and highlight milestones in my career.
-
-I believe in transparent communication and I’m always open to collaborations, discussions, and opportunities that align with my passion for building scalable and joyful technology.`;
+I believe in transparent communication and I’m always open to collaborations, discussions, and opportunities that align with my passion for building scalable and joyful technology.
+Thank you!`;
 
       case 'personality':
-        return `Thank you for asking! Here’s a bit about my nature and personality.
+        return `Here’s a bit about my nature and personality.
 
-I respect all religions and value harmony 🌍. I love nature and find peace in it 🌱. I’m a happy and optimistic person 😃, and I’m known as a "one-man army" — independent and resilient 💪. I’m also transparent, approachable, and detail-oriented, which helps me connect with people while maintaining technical excellence.`;
+I respect all religions and value harmony 🌍. I love nature and find peace in it 🌱. I’m a happy and optimistic person 😃, and I’m known as a "one-man army" — independent and resilient 💪. I’m also transparent, approachable, and detail-oriented, which helps me connect with people while maintaining technical excellence.
+Thank you!`;
 
       default:
-        return '';
+        return 'Ehteshams Boat is on training';
     }
   };
 
@@ -117,24 +157,29 @@ I respect all religions and value harmony 🌍. I love nature and find peace in 
     setIsLoading(true);
 
     try {
-      const q = input.toLowerCase();
+      const q = input.toLowerCase().trim();
 
-      // Greeting detection
-      if (['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'].includes(q)) {
-        const greeting = q.charAt(0).toUpperCase() + q.slice(1);
-        setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
-        return;
-      }
+      // ✅ Greeting detection first
+const greetings = ['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'];
+if (greetings.includes(q)) {
+  const greeting = q.charAt(0).toUpperCase() + q.slice(1);
+  setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
+  setIsLoading(false); // reset loading state
+  setTimeout(() => scrollToBottom(), 0); // ensure scroll after render
+  return; // stop here — don’t check for topics
+}
 
       // Confirmation flow
       if (conversationState) {
         if (q === 'yes') {
           const reply = getConfirmedReply(conversationState);
-          setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
           setConversationState(null);
+          typeMessage(reply); // ✅ gradual typing effect
         } else {
           setMessages(prev => [...prev, { role: 'assistant', content: "Okay, let me know if you'd like to hear about it later." }]);
           setConversationState(null);
+          setIsLoading(false);
+          setTimeout(() => scrollToBottom(), 0);
         }
         return;
       }
