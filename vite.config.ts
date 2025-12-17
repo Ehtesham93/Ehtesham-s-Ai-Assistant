@@ -8,15 +8,12 @@ export default defineConfig(({ mode }) => ({
     host: "0.0.0.0",
     port: 8080,
   },
-  plugins: [
-    react(),
-    mode === "development" ? componentTagger() : null,
-  ].filter(Boolean),
+  plugins: [react(), mode === "development" ? componentTagger() : null].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // ✅ Ensures assets load correctly on GitHub Pages
+  // ✅ Required for GitHub Pages
   base: "/Ehtesham-s-Ai-Assistant/",
 }));

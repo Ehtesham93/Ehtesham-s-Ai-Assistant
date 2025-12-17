@@ -5,7 +5,7 @@ This site showcases my skills in **React, Vite, TypeScript, Tailwind CSS, and sh
 
 ---
 
-## 🌐 Live Demo
+## 🌐 My Portfolio Live Demo Link
 
 👉 [View Portfolio](https://ehtesham93.github.io/Ehtesham-s-Ai-Assistant/)
 
@@ -20,7 +20,7 @@ This site showcases my skills in **React, Vite, TypeScript, Tailwind CSS, and sh
 
 ---
 
-## ⚙️ Getting Started
+## ⚙️ Getting Started (Local Development)
 
 Clone and run locally:
 

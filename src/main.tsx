@@ -1,12 +1,10 @@
-//main.tsx
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { HashRouter as Router } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 
-// ✅ Use HashRouter so GitHub Pages doesn’t break on refresh
 createRoot(document.getElementById("root")!).render(
-  <Router>
+  <HashRouter>
     <App />
-  </Router>
+  </HashRouter>
 );
