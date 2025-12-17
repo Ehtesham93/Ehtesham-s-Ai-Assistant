@@ -106,7 +106,7 @@ Thank you!`;
       case 'experience':
         return `My professional experience reflects my growth as an engineer.
 
-At Mahindra Last Mile Mobility, I work as an Assistant Manager and Software Engineer. I’ve built scalable EV fleet and vehicle management platforms, designed high-performance REST APIs with Node.js and Express, optimized PostgreSQL queries for speed, and integrated real-time telemetry with AWS.
+At Mahindra Last Mile Mobility, I work as Software Engineer. I’ve built scalable EV fleet and vehicle management platforms, designed high-performance REST APIs with Node.js and Express, optimized PostgreSQL queries for speed, and integrated real-time telemetry with AWS.
 
 Before that, I was a research intern at IIT ISM, where I developed a backend for real-time mining sensor monitoring. This gave me exposure to Python, Flask, and data-driven systems. Together, these experiences shaped me into a versatile engineer.
 Thank you!`;
