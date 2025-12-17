@@ -1,73 +1,38 @@
-# Welcome to your Lovable project
+# 🚀 Ehtesham's AI Assistant Portfolio
 
-## Project info
+Welcome to my interactive portfolio project!  
+This site showcases my skills in **React, Vite, TypeScript, Tailwind CSS, and shadcn-ui**, along with a chatbot assistant that reflects my background and expertise.
 
-**URL**: https://lovable.dev/projects/859fb318-24f8-4cd8-8e0b-a380bea82004
+---
 
-## How can I edit this code?
+## 🌐 Live Demo
 
-There are several ways of editing your application.
+👉 [View Portfolio](https://ehtesham93.github.io/Ehtesham-s-Ai-Assistant/)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/859fb318-24f8-4cd8-8e0b-a380bea82004) and start prompting.
+## 📂 Project Info
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Framework**: React + Vite  
+- **Language**: TypeScript  
+- **UI**: shadcn-ui + Tailwind CSS  
+- **Deployment**: GitHub Pages (`gh-pages` branch)  
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## ⚙️ Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Clone and run locally:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Step 1: Clone the repository
+git clone https://github.com/Ehtesham93/Ehtesham-s-Ai-Assistant.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate into the project folder
+cd Ehtesham-s-Ai-Assistant
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/859fb318-24f8-4cd8-8e0b-a380bea82004) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
