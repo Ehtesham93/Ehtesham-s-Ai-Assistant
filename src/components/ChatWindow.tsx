@@ -32,7 +32,7 @@ export const ChatWindow = () => {
   const [conversationState, setConversationState] = useState<Topic | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Auto-scroll helper
+  // Auto-scroll helper
   const scrollToBottom = () => {
     if (!scrollRef.current) return;
     const viewport = scrollRef.current.querySelector(
@@ -46,7 +46,7 @@ export const ChatWindow = () => {
     scrollToBottom();
   }, [messages]);
 
-  // ✅ Typing effect helper
+  // Typing effect helper
   const typeMessage = (text: string) => {
     let index = 0;
     setIsLoading(true);
@@ -71,7 +71,7 @@ export const ChatWindow = () => {
     }, 30); // typing speed
   };
 
-  // ✅ Replies for all topics
+  // Replies for all topics
   const getConfirmedReply = (topic: Topic): string => {
     switch (topic) {
       case 'intro':
@@ -90,12 +90,12 @@ Alongside these, I developed frontend skills in React and Vue.js, and I’m pass
 Thank you!`;
 
       case 'education':
-        return ` My education journey has been a foundation for everything I do today.
+        return `My education journey has been a foundation for everything I do today.
 
 I completed my 10th grade in 2019 from the Bihar School Examination Board, Patna, ranking first in my class. In 2021, I passed my Intermediate exams from the same board, again securing top grades. These early years gave me discipline and a love for problem-solving.
 
 Later, I pursued my B.Tech in Computer Science at NIT Warangal, graduating in 2025. At NIT, I studied core subjects like algorithms, databases, and operating systems, and applied them in real projects. My research internship at IIT ISM allowed me to explore real-time emotion detection, combining computer vision with backend systems.
-Thank you !`;
+Thank you!`;
 
       case 'hobbies':
         return `My hobbies are a big part of who I am.
@@ -144,7 +144,7 @@ I respect all religions and value harmony 🌍. I love nature and find peace in 
 Thank you!`;
 
       default:
-        return 'Ehteshams Boat is on training';
+        return `Ehtesham's bot is still in training. Try asking about my intro, skills, education, hobbies, experience, projects, leadership, contact, or personality.`;
     }
   };
 
@@ -159,22 +159,22 @@ Thank you!`;
     try {
       const q = input.toLowerCase().trim();
 
-      // ✅ Greeting detection first
-const greetings = ['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'];
-if (greetings.includes(q)) {
-  const greeting = q.charAt(0).toUpperCase() + q.slice(1);
-  setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
-  setIsLoading(false); // reset loading state
-  setTimeout(() => scrollToBottom(), 0); // ensure scroll after render
-  return; // stop here — don’t check for topics
-}
+      // Greeting detection first
+      const greetings = ['hi', 'hello', 'good morning', 'good afternoon', 'good evening', 'good night'];
+      if (greetings.includes(q)) {
+        const greeting = q.charAt(0).toUpperCase() + q.slice(1);
+        setMessages(prev => [...prev, { role: 'assistant', content: `${greeting}! How can I assist you?` }]);
+        setIsLoading(false);
+        setTimeout(() => scrollToBottom(), 0);
+        return;
+      }
 
       // Confirmation flow
       if (conversationState) {
         if (q === 'yes') {
           const reply = getConfirmedReply(conversationState);
           setConversationState(null);
-          typeMessage(reply); // ✅ gradual typing effect
+          typeMessage(reply); // typing effect disables controls via isLoading
         } else {
           setMessages(prev => [...prev, { role: 'assistant', content: "Okay, let me know if you'd like to hear about it later." }]);
           setConversationState(null);
@@ -190,7 +190,7 @@ if (greetings.includes(q)) {
         skill: 'skills',
         stack: 'skills',
         tech: 'skills',
-                education: 'education',
+        education: 'education',
         school: 'education',
         study: 'education',
         hobby: 'hobbies',
@@ -218,18 +218,22 @@ if (greetings.includes(q)) {
           ...prev,
           { role: 'assistant', content: `Do you want to know about Ehtesham’s ${matchedTopic}?` }
         ]);
+        setIsLoading(false);
+        setTimeout(() => scrollToBottom(), 0);
         return;
       }
 
-      // Default fallback if no topic matched
+      // Default fallback
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
           content:
-            "I can share details about Ehtesham’s intro, skills, education, hobbies, experience, projects, leadership, contact, or personality. Try asking one of those!"
+            "Ehtesham's bot is still in training. Try asking about my intro, skills, education, hobbies, experience, projects, leadership, contact, or personality."
         }
       ]);
+      setIsLoading(false);
+      setTimeout(() => scrollToBottom(), 0);
     } catch (error) {
       console.error('Chat error:', error);
       toast.error('Something went wrong. Please try again.');
@@ -237,8 +241,8 @@ if (greetings.includes(q)) {
         ...prev,
         { role: 'assistant', content: "Sorry, I'm having trouble right now. Please try again later." }
       ]);
-    } finally {
       setIsLoading(false);
+      setTimeout(() => scrollToBottom(), 0);
     }
   };
 
@@ -262,14 +266,12 @@ if (greetings.includes(q)) {
           </p>
         </div>
 
-        <ScrollArea className="h-[500px] px-6 py-4" ref={scrollRef}>
+        <ScrollArea className="h-[500px] px-6 py-4" ref={scrollRef} aria-busy={isLoading}>
           <div className="space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                } animate-fade-in`}
+                className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
               >
                 {message.role === 'assistant' && (
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -278,9 +280,7 @@ if (greetings.includes(q)) {
                 )}
                 <div
                   className={`rounded-2xl px-4 py-3 max-w-[80%] ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
+                    message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -301,18 +301,9 @@ if (greetings.includes(q)) {
                 </div>
                 <div className="rounded-2xl px-4 py-3 bg-muted">
                   <div className="flex gap-1">
-                    <span
-                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                      style={{ animationDelay: '0ms' }}
-                    />
-                    <span
-                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                      style={{ animationDelay: '150ms' }}
-                    />
-                    <span
-                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                      style={{ animationDelay: '300ms' }}
-                    />
+                    <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </div>
@@ -320,19 +311,19 @@ if (greetings.includes(q)) {
           </div>
         </ScrollArea>
 
-        <div className="px-6 py-4 border-t border-glass-border bg-muted/30">
+        <div className={`px-6 py-4 border-t border-glass-border bg-muted/30 ${isLoading ? 'pointer-events-none opacity-60' : ''}`}>
           <div className="flex gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your question..."
-              disabled={isLoading}
+              placeholder={isLoading ? 'Assistant is typing…' : 'Type your question...'}
+              disabled={isLoading} // fully disables typing
               className="flex-1 bg-background/50 border-border focus:border-primary transition-colors"
             />
             <Button
               onClick={handleSend}
-              disabled={isLoading || !input.trim()}
+              disabled={isLoading || !input.trim()} // disables clicks while typing
               size="icon"
               className="bg-primary hover:bg-primary/90 transition-all hover:scale-105"
             >
